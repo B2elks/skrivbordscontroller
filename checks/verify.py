@@ -2536,7 +2536,7 @@ def check_readme_och_licens():
         return
     t = open(lic, encoding="utf-8").read()
     if not t.startswith("This is free and unencumbered software released into the public domain.") \
-            or "<https://unlicense.org>" not in t:
+            or "<https://unlicense.org" not in t:
         fail("LICENSE ska vara The Unlicense, ordagrant")
     if "copyright (c)" in t.lower() or "copyright (c)" in rd.lower():
         fail("ingen copyright-rad ska finnas (The Unlicense)")
@@ -2599,6 +2599,7 @@ CHECKS = [
     check_deploy_mallar,
     check_inga_hemligheter,
     check_svg_bilder,
+    check_readme_och_licens,
 ]
 
 
