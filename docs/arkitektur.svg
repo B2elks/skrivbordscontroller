@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 620" width="1040" height="620" font-family="Helvetica, Arial, sans-serif" fill="#1a1a1a">
+  <title>Skrivbordet — arkitektur</title>
+  <rect x="0" y="0" width="1040" height="620" fill="#ffffff"/>
+  <defs>
+    <marker id="pil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333333"/>
+    </marker>
+    <marker id="pilsvar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c2410c"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="40" font-size="22" font-weight="bold">Skrivbordet — arkitektur</text>
+  <text x="30" y="64" font-size="14" fill="#444444">Heldragen pil: samtal, anrop och uppdrag. Streckad orange pil: svaret tillbaka till den som ringer.</text>
+
+  <!-- Rad 1: telefoni -->
+  <g stroke-width="2">
+    <rect x="30" y="90" width="200" height="90" rx="8" fill="#f2f2f2" stroke="#555555"/>
+    <rect x="290" y="90" width="200" height="90" rx="8" fill="#fdecef" stroke="#a3213a"/>
+    <rect x="550" y="90" width="200" height="90" rx="8" fill="#fdecef" stroke="#a3213a"/>
+    <rect x="810" y="90" width="200" height="90" rx="8" fill="#e8f0fb" stroke="#2b4f80"/>
+  </g>
+  <text x="130" y="122" font-size="16" font-weight="bold" text-anchor="middle">Telefon</text>
+  <text x="130" y="146" font-size="13" text-anchor="middle">den som ringer,</text>
+  <text x="130" y="164" font-size="13" text-anchor="middle">svenskt nummer</text>
+  <text x="390" y="122" font-size="16" font-weight="bold" text-anchor="middle">46elks-nummer</text>
+  <text x="390" y="146" font-size="13" text-anchor="middle">voice_start:</text>
+  <text x="390" y="164" font-size="13" text-anchor="middle">connect → ws-numret</text>
+  <text x="650" y="122" font-size="16" font-weight="bold" text-anchor="middle">46elks ws-nummer</text>
+  <text x="650" y="146" font-size="13" text-anchor="middle">websocket_url:</text>
+  <text x="650" y="164" font-size="13" text-anchor="middle">wss://din-domän/elks</text>
+  <text x="910" y="122" font-size="16" font-weight="bold" text-anchor="middle">brygga/</text>
+  <text x="910" y="146" font-size="13" text-anchor="middle">Python websockets</text>
+  <text x="910" y="164" font-size="13" text-anchor="middle">pcm 24 kHz ↔ 16 kHz</text>
+
+  <!-- Rad 2: agent och server -->
+  <g stroke-width="2">
+    <rect x="30" y="270" width="200" height="90" rx="8" fill="#f2f2f2" stroke="#555555"/>
+    <rect x="290" y="270" width="200" height="90" rx="8" fill="#eef7ee" stroke="#2f6b35"/>
+    <rect x="550" y="270" width="200" height="90" rx="8" fill="#f3eefb" stroke="#5b3a8c"/>
+    <rect x="810" y="270" width="200" height="90" rx="8" fill="#f3eefb" stroke="#5b3a8c"/>
+  </g>
+  <text x="130" y="302" font-size="16" font-weight="bold" text-anchor="middle">Adminsida</text>
+  <text x="130" y="326" font-size="13" text-anchor="middle">kalibrering, profiler,</text>
+  <text x="130" y="344" font-size="13" text-anchor="middle">manuella knappar</text>
+  <text x="390" y="302" font-size="16" font-weight="bold" text-anchor="middle">server/ (kö)</text>
+  <text x="390" y="326" font-size="13" text-anchor="middle">Flask + SQLite</text>
+  <text x="390" y="344" font-size="13" text-anchor="middle">ett uppdrag i taget</text>
+  <text x="650" y="302" font-size="16" font-weight="bold" text-anchor="middle">server tools</text>
+  <text x="650" y="326" font-size="13" text-anchor="middle">POST /api/agent/*</text>
+  <text x="650" y="344" font-size="13" text-anchor="middle">X-Agent-Hemlighet</text>
+  <text x="910" y="302" font-size="16" font-weight="bold" text-anchor="middle">ElevenLabs-agent</text>
+  <text x="910" y="326" font-size="13" text-anchor="middle">tal → verktygsanrop,</text>
+  <text x="910" y="344" font-size="13" text-anchor="middle">läser upp svaret</text>
+
+  <!-- Rad 3: hårdvara -->
+  <g stroke-width="2">
+    <rect x="290" y="450" width="200" height="90" rx="8" fill="#e8f0fb" stroke="#2b4f80"/>
+    <rect x="550" y="450" width="200" height="90" rx="8" fill="#eef7ee" stroke="#2f6b35"/>
+    <rect x="810" y="450" width="200" height="90" rx="8" fill="#fbf4e8" stroke="#8a5a14"/>
+  </g>
+  <text x="390" y="482" font-size="16" font-weight="bold" text-anchor="middle">ESP32-C3</text>
+  <text x="390" y="506" font-size="13" text-anchor="middle">MicroPython,</text>
+  <text x="390" y="524" font-size="13" text-anchor="middle">long-poll 25 s</text>
+  <text x="650" y="482" font-size="16" font-weight="bold" text-anchor="middle">relä</text>
+  <text x="650" y="506" font-size="13" text-anchor="middle">draget i exakt N ms,</text>
+  <text x="650" y="524" font-size="13" text-anchor="middle">tak MAX_MS</text>
+  <text x="910" y="482" font-size="16" font-weight="bold" text-anchor="middle">bordet</text>
+  <text x="910" y="506" font-size="13" text-anchor="middle">relät parallellt över</text>
+  <text x="910" y="524" font-size="13" text-anchor="middle">upp-/nedknappen</text>
+
+  <!-- Samtalet: ljud åt båda hållen -->
+  <g stroke="#333333" stroke-width="2.5" fill="none" marker-start="url(#pil)" marker-end="url(#pil)">
+    <line x1="233" y1="135" x2="287" y2="135"/>
+    <line x1="493" y1="135" x2="547" y2="135"/>
+    <line x1="753" y1="135" x2="807" y2="135"/>
+  </g>
+
+  <!-- Framåtvägen -->
+  <g stroke="#333333" stroke-width="2.5" fill="none" marker-end="url(#pil)">
+    <line x1="890" y1="182" x2="890" y2="267"/>
+    <line x1="808" y1="300" x2="753" y2="300"/>
+    <line x1="548" y1="300" x2="493" y2="300"/>
+    <line x1="232" y1="315" x2="287" y2="315"/>
+    <line x1="420" y1="362" x2="420" y2="447"/>
+    <line x1="360" y1="448" x2="360" y2="363"/>
+    <line x1="492" y1="495" x2="547" y2="495"/>
+    <line x1="752" y1="495" x2="807" y2="495"/>
+  </g>
+  <text x="260" y="118" font-size="12" text-anchor="middle">samtal</text>
+  <text x="520" y="118" font-size="12" text-anchor="middle">kopplar</text>
+  <text x="780" y="118" font-size="12" text-anchor="middle">ljud</text>
+  <text x="882" y="230" font-size="12" text-anchor="end">ljud + uppringare</text>
+  <text x="780" y="283" font-size="12" text-anchor="middle">anrop</text>
+  <text x="520" y="283" font-size="12" text-anchor="middle">webhook</text>
+  <text x="260" y="298" font-size="12" text-anchor="middle">admin</text>
+  <text x="430" y="400" font-size="12">uppdrag {rela, ms}</text>
+  <text x="350" y="400" font-size="12" text-anchor="end">long-poll</text>
+  <text x="350" y="416" font-size="12" text-anchor="end">och klar</text>
+  <text x="520" y="478" font-size="12" text-anchor="middle">GPIO5/6</text>
+  <text x="780" y="478" font-size="12" text-anchor="middle">sluter</text>
+
+  <!-- Svarsvägen -->
+  <g stroke="#c2410c" stroke-width="2.5" fill="none" stroke-dasharray="7 5" marker-end="url(#pilsvar)">
+    <line x1="493" y1="340" x2="548" y2="340"/>
+    <line x1="753" y1="340" x2="808" y2="340"/>
+    <line x1="950" y1="267" x2="950" y2="182"/>
+  </g>
+  <text x="520" y="361" font-size="12" text-anchor="middle" fill="#c2410c">svar</text>
+  <text x="780" y="361" font-size="12" text-anchor="middle" fill="#c2410c">sag</text>
+  <text x="958" y="230" font-size="12" fill="#c2410c">tal</text>
+
+  <text x="30" y="580" font-size="14" fill="#444444">Anropet hålls öppet tills ESP32:an rapporterat klar. Då svarar servern med en mening,</text>
+  <text x="30" y="602" font-size="14" fill="#444444">till exempel "Klart. 82 centimeter.", som agenten läser upp i samma samtal. Servern ringer aldrig ut.</text>
+</svg>

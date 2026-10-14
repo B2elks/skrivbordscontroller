@@ -2598,6 +2598,7 @@ CHECKS = [
     check_esp32_rela_aktivt_lag,
     check_deploy_mallar,
     check_inga_hemligheter,
+    check_svg_bilder,
 ]
 
 
