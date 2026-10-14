@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% if pagaende and not pagaende.tidtagning %}<meta http-equiv="refresh" content="3">{% endif %}
+<title>Skrivbordet</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --kort: #ffffff; --text: #1d1d1b; --dampad: #5b5b57; --linje: #dcdad4;
+    --knapp: #1f4e79; --knapp-text: #ffffff; --fel: #9b1c1c; --ok: #1e6b35; --stopp: #b42318;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161615; --kort: #222220; --text: #f1f0ec; --dampad: #b3b2ac; --linje: #3a3936;
+      --knapp: #8fbfe8; --knapp-text: #0b1a27; --fel: #ffb4ab; --ok: #9ad7a8; --stopp: #ff8a7a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 17px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 34rem; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.5rem; margin: 0.2rem 0 1rem; }
+  h2 { font-size: 1.1rem; margin: 0 0 0.6rem; }
+  section { background: var(--kort); border: 1px solid var(--linje); border-radius: 12px;
+            padding: 14px 16px; margin-bottom: 14px; }
+  .stor { font-size: 2.2rem; font-weight: 650; margin: 0; }
+  .dampad { color: var(--dampad); font-size: 0.92rem; }
+  .rad { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+  .rad > * { flex: 1 1 8rem; }
+  form { margin: 0; }
+  button { width: 100%; min-height: 52px; border: 0; border-radius: 10px; font: inherit;
+           font-weight: 600; background: var(--knapp); color: var(--knapp-text); cursor: pointer; }
+  button.stopp { background: var(--stopp); min-height: 72px; font-size: 1.3rem; }
+  label { display: block; font-size: 0.92rem; color: var(--dampad); }
+  input, select { width: 100%; min-height: 48px; font: inherit; padding: 8px 10px; border-radius: 8px;
+                  border: 1px solid var(--linje); background: var(--bg); color: var(--text); }
+  .meddelande { padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; font-weight: 600;
+                border: 1px solid currentColor; }
+  .meddelande.ok { color: var(--ok); }
+  .meddelande.fel { color: var(--fel); }
+  dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; }
+  dt { color: var(--dampad); }
+  dd { margin: 0; }
+  ol { margin: 0; padding-left: 0; list-style: none; }
+  ol li { padding: 6px 0; border-top: 1px solid var(--linje); font-size: 0.95rem; }
+  ol li:first-child { border-top: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  button.sekundar { background: var(--kort); color: var(--text); border: 1px solid var(--linje); }
+  .profilrad { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+  ol.profiler li { padding: 10px 0; }
+  .grid2 + .grid2, .rad + .rad, form + form { margin-top: 10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Skrivbordet</h1>
+
+  {% for kategori, text in get_flashed_messages(with_categories=true) %}
+    <div class="meddelande {{ kategori }}">{{ text }}</div>
+  {% endfor %}
+
+  <section>
+    <h2>Position</h2>
+    <p class="stor">{% if position is none %}okänd{% else %}{{ position|sv }} cm{% endif %}</p>
+    <p class="dampad">
+      Bordet (ESP32):
+      {% if sedan_s is none %}har aldrig hört av sig
+      {% elif sedan_s < 60 %}ansluten, senast för {{ sedan_s|round|int }} s sedan
+      {% else %}inte hörts av sedan {{ enhet.senast_sedd|klockslag }}{% endif %}
+      {% if enhet.version %} · version {{ enhet.version }}{% endif %}
+      <br>Rörelser i dag: {{ dygn.rorelser }}
+    </p>
+  </section>
+
+  {% if pagaende %}
+  <section>
+    <h2>Pågående uppdrag</h2>
+    <p>Uppdrag {{ pagaende.id }}: {{ pagaende.rela }}
+      {% if pagaende.tidtagning %}(tidtagning){% elif pagaende.lage %}({{ pagaende.lage }}){% else %}{{ pagaende.faktisk_cm|sv }} cm{% endif %},
+      {{ pagaende.ms }} ms — {{ status_text[pagaende.status] }}.</p>
+    {% if pagaende.tidtagning %}
+      <form method="post" action="/admin/tidtagning/stopp">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="stopp" type="submit">Stopp</button>
+      </form>
+      <p class="dampad">Tryck stopp i samma ögonblick som bordet når ändläget.</p>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  <section>
+    <h2>Flytta</h2>
+    <form method="post" action="/admin/flytta">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label for="cm">Centimeter (1–{{ max_cm }})</label>
+      <input id="cm" name="cm" type="number" inputmode="decimal" min="1" max="{{ max_cm }}" step="0.5" value="10">
+      <div class="grid2" style="margin-top:10px">
+        <button type="submit" name="riktning" value="upp">Upp</button>
+        <button type="submit" name="riktning" value="ner">Ner</button>
+      </div>
+    </form>
+    <form method="post" action="/admin/hojd">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label for="hojd">Ställ på höjd (cm)</label>
+      <input id="hojd" name="cm" type="number" inputmode="decimal" step="0.5"
+             {% if kal.giltig() %}min="{{ kal.min_cm }}" max="{{ kal.max_cm }}"{% endif %} required>
+      <button type="submit" style="margin-top:10px">Ställ på höjd</button>
+    </form>
+    <div class="grid2">
+      <form method="post" action="/admin/lage">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button type="submit" name="lage" value="stå">Stå</button>
+      </form>
+      <form method="post" action="/admin/lage">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button type="submit" name="lage" value="sitt">Sitt</button>
+      </form>
+    </div>
+  </section>
+
+  <section>
+    <h2>Profiler</h2>
+    {% if profiler %}
+    <ol class="profiler">
+      {% for p in profiler %}
+        <li>
+          <div class="profilrad"><strong>{{ p.namn }}</strong><span>{{ p.cm|sv }} cm</span></div>
+          <div class="grid2">
+            <form method="post" action="/admin/profil/till">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <input type="hidden" name="nyckel" value="{{ p.nyckel }}">
+              <button type="submit">Kör hit</button>
+            </form>
+            <form method="post" action="/admin/profil/ta-bort"
+                  onsubmit="return confirm('Ta bort profilen?')">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <input type="hidden" name="nyckel" value="{{ p.nyckel }}">
+              <button type="submit" class="sekundar">Ta bort</button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+    {% else %}<p class="dampad">Inga sparade profiler än.</p>{% endif %}
+    <form method="post" action="/admin/profil/spara" style="margin-top:10px">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label for="profilnamn">Spara nuvarande höjd som…</label>
+      <input id="profilnamn" name="namn" maxlength="{{ max_profilnamn }}" required placeholder="t.ex. Björn">
+      <button type="submit" style="margin-top:10px">Spara profil</button>
+    </form>
+    <p class="dampad">{{ profiler|length }} av högst {{ max_profiler }} profiler. Agenten kan spara, lista och köra till profiler men inte ta bort dem.</p>
+  </section>
+
+  <section>
+    <h2>Kalibrering</h2>
+    {% if kal.giltig() %}
+      <p class="dampad">Hastighet upp {{ hastighet.upp|sv(2) }} cm/s, ner {{ hastighet.ner|sv(2) }} cm/s.</p>
+    {% else %}
+      <p class="dampad">Bordet är inte kalibrerat — alla rörelsekommandon nekas tills alla fyra värden finns.</p>
+    {% endif %}
+    <form method="post" action="/admin/kalibrering">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="grid2">
+        <div><label for="min_cm">Lägsta höjd (cm)</label>
+          <input id="min_cm" name="min_cm" inputmode="decimal" value="{{ kal.min_cm|sv(2) if kal.min_cm is not none else '' }}"></div>
+        <div><label for="max_cm">Högsta höjd (cm)</label>
+          <input id="max_cm" name="max_cm" inputmode="decimal" value="{{ kal.max_cm|sv(2) if kal.max_cm is not none else '' }}"></div>
+      </div>
+      <div class="grid2">
+        <div><label for="restid_upp_s">Restid upp (s)</label>
+          <input id="restid_upp_s" name="restid_upp_s" inputmode="decimal" value="{{ kal.restid_upp_s|sv(2) if kal.restid_upp_s is not none else '' }}"></div>
+        <div><label for="restid_ner_s">Restid ner (s)</label>
+          <input id="restid_ner_s" name="restid_ner_s" inputmode="decimal" value="{{ kal.restid_ner_s|sv(2) if kal.restid_ner_s is not none else '' }}"></div>
+      </div>
+      <div style="margin-top:10px"><button type="submit">Spara kalibrering</button></div>
+    </form>
+  </section>
+
+  <section>
+    <h2>Mät restid</h2>
+    <p class="dampad">1. Kör till botten och mät höjden med måttband → lägsta höjd.
+      2. Start upp, tryck stopp när bordet stannar högst upp → restid upp. Mät höjden → högsta höjd.
+      3. Start ner, stopp i botten → restid ner.</p>
+    <form method="post" action="/admin/botten">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <button type="submit">Kör till botten</button>
+    </form>
+    <div class="grid2">
+      <form method="post" action="/admin/tidtagning/start">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button type="submit" name="riktning" value="upp">Start upp</button>
+      </form>
+      <form method="post" action="/admin/tidtagning/start">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button type="submit" name="riktning" value="ner">Start ner</button>
+      </form>
+    </div>
+    {% if tidtagning %}
+      <p>Senaste tidtagning ({{ tidtagning.rela }}, {{ status_text[tidtagning.status] }}):
+        {% if tidtagning.uppmatt_ms %}<strong>{{ (tidtagning.uppmatt_ms / 1000)|sv }} s</strong>
+          <span class="dampad">(reläet drogs {{ (tidtagning.ms_kord / 1000)|sv(2) }} s)</span>
+        {% elif tidtagning.status == 'klar' %}ingen mätning — stopp trycktes aldrig.
+        {% else %}ingen mätning än.{% endif %}</p>
+      {% if tidtagning.uppmatt_ms and tidtagning.status == 'klar' %}
+        <form method="post" action="/admin/tidtagning/spara">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <input type="hidden" name="id" value="{{ tidtagning.id }}">
+          <button type="submit">Spara som restid {{ tidtagning.rela }}</button>
+        </form>
+      {% endif %}
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Händelser</h2>
+    {% if handelser %}
+    <ol>
+      {% for h in handelser %}
+        <li><span class="dampad">{{ h.tid|klockslag }}</span><br>{{ h.text }}</li>
+      {% endfor %}
+    </ol>
+    {% else %}<p class="dampad">Inga händelser än.</p>{% endif %}
+  </section>
+</main>
+</body>
+</html>

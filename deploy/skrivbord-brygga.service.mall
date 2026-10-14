@@ -1,0 +1,21 @@
+# Mall: deploy.sh ersätter @ANVANDARE@, @MAL@ och @BRYGGA_PORT@ innan filen installeras.
+[Unit]
+Description=Skrivbordet: telefonbrygga 46elks <-> ElevenLabs
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=@ANVANDARE@
+WorkingDirectory=@MAL@/brygga
+# ELEVENLABS_API_KEY, SKRIVBORD_AGENT_ID och SKRIVBORD_EGNA_NUMMER ligger här
+# (samma fil som servern läser).
+EnvironmentFile=/etc/skrivbord/secrets.env
+Environment=BRYGGA_VARD=127.0.0.1
+Environment=BRYGGA_PORT=@BRYGGA_PORT@
+Environment=PYTHONUNBUFFERED=1
+ExecStart=@MAL@/venv-brygga/bin/python brygga.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+# Mall: deploy.sh ersätter @ANVANDARE@, @MAL@ och @PORT@ innan filen installeras.
+[Unit]
+Description=Skrivbordet (röststyrt höj- och sänkbart bord)
+After=network.target
+
+[Service]
+User=@ANVANDARE@
+WorkingDirectory=@MAL@/server
+Environment=SKRIVBORD_DB=@MAL@/data/skrivbord.db
+EnvironmentFile=/etc/skrivbord/secrets.env
+# gthread med EN worker: long-poll från ESP32:an håller en tråd i upp till 25 s och
+# agentens anrop håller en tråd tills bordet stannat. Trådar i samma process räcker,
+# och SQLite slipper skrivas från flera processer samtidigt.
+ExecStart=@MAL@/venv/bin/gunicorn 'app:skapa_app()' --bind 127.0.0.1:@PORT@ --workers 1 --worker-class gthread --threads 8 --timeout 60
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

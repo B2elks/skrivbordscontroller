@@ -1,0 +1,25 @@
+# Miljöer och byggrester
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Data och databaser
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Hemligheter och platsspecifik konfiguration — bara *.example.py och mallar checkas in
+.env
+.env.*
+*.env
+secrets.env
+esp32/config.py
+brygga/agent_id.txt
+
+# Renderade bilder hör inte hemma i repot (SVG:erna är källan)
+docs/*.png
+
+.DS_Store
+deploy/deploy.env

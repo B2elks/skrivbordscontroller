@@ -1,0 +1,2 @@
+# Bryggan kör på python3.12 på servern. Ingen audioop (borta i 3.13), ingen numpy.
+websockets==15.0.1
